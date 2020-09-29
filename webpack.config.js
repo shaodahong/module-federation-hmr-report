@@ -1,8 +1,10 @@
 const path = require('path');
 const ReactRefreshPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-const ModuleFederationPlugin = require('webpack').container.ModuleFederationPlugin;
+const ModuleFederationPlugin = require('webpack').container
+  .ModuleFederationPlugin;
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const deps = require('./package.json').dependencies;
 
@@ -10,11 +12,11 @@ module.exports = {
   mode: isDevelopment ? 'development' : 'production',
   entry: './src/index.js',
   output: {
-    publicPath: 'http://localhost:3001/'
+    publicPath: 'http://localhost:3001/',
   },
   devServer: {
     contentBase: path.join(__dirname, 'dist'),
-    port: 3001
+    port: 3001,
   },
   module: {
     rules: [
@@ -24,41 +26,45 @@ module.exports = {
         loader: 'babel-loader',
         options: {
           presets: ['@babel/preset-react'],
-          plugins: [require.resolve('react-refresh/babel')]
-        }
-      }
-    ]
+        },
+      },
+      {
+        test: /\.css$/i,
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+      },
+    ],
   },
   plugins: [
     isDevelopment && new ReactRefreshPlugin(),
     new HtmlWebpackPlugin({
-      template: './public/index.html'
+      template: './public/index.html',
     }),
     new ModuleFederationPlugin({
       name: 'app2',
       filename: 'remoteEntry.js',
       remotes: {
-        app1: 'app1@http://localhost:3001/remoteEntry.js'
+        app1: 'app1@http://localhost:3001/remoteEntry.js',
       },
       exposes: {
-        './routes': './src/routes'
+        './routes': './src/routes',
       },
       shared: {
         ...deps,
         react: {
           eager: true,
           singleton: true,
-          requiredVersion: deps.react
+          requiredVersion: deps.react,
         },
         'react-dom': {
           eager: true,
           singleton: true,
-          requiredVersion: deps['react-dom']
-        }
-      }
-    })
+          requiredVersion: deps['react-dom'],
+        },
+      },
+    }),
+    new MiniCssExtractPlugin(),
   ].filter(Boolean),
   resolve: {
-    extensions: ['.js', '.jsx']
-  }
+    extensions: ['.js', '.jsx'],
+  },
 };

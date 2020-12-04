@@ -1,5 +1,5 @@
 const path = require('path');
-const ReactRefreshPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+// const ReactRefreshPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
@@ -12,11 +12,14 @@ module.exports = {
   mode: isDevelopment ? 'development' : 'production',
   entry: './src/index.js',
   output: {
-    publicPath: 'http://localhost:3001/',
+    publicPath: 'http://127.0.0.1:3001/',
   },
   devServer: {
-    contentBase: path.join(__dirname, 'dist'),
+    static: path.join(__dirname, 'dist'),
     port: 3001,
+    liveReload: false,
+    injectClient: true,
+    injectHot: true,
   },
   module: {
     rules: [
@@ -35,7 +38,7 @@ module.exports = {
     ],
   },
   plugins: [
-    isDevelopment && new ReactRefreshPlugin(),
+    // isDevelopment && new ReactRefreshPlugin(),
     new HtmlWebpackPlugin({
       template: './public/index.html',
     }),
@@ -43,10 +46,10 @@ module.exports = {
       name: 'app2',
       filename: 'remoteEntry.js',
       remotes: {
-        app1: 'app1@http://localhost:3001/remoteEntry.js',
+        app1: 'app1@http://127.0.0.1:3001/remoteEntry.js',
       },
       exposes: {
-        './routes': './src/routes',
+        './App': './src/App',
       },
       shared: {
         ...deps,
